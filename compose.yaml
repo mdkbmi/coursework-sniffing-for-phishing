@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  phishsense-v2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: phishsense-v2
+    network_mode: "host"
+    volumes:
+      - ./model:/app/model:ro
+

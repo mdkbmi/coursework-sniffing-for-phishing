@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ci Xu">
+<meta name="author" content="Danish Karlin Isa">
+<meta name="author" content="Jia Quan (Joseph) Lim">
+<meta name="author" content="Lik Hang (Alex) Wong">
+<meta name="dcterms.date" content="2025-06-25">
+
+<title>Sniffing for Phishing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="final_report_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="final_report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="final_report_files/libs/quarto-html/popper.min.js"></script>
+<script src="final_report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="final_report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="final_report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="final_report_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="final_report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="final_report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="final_report_files/libs/bootstrap/bootstrap-16bbabe37efa2ecafad14e96199f1a13.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="final_report_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="final_report_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="final_report_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#executive-summary" id="toc-executive-summary" class="nav-link active" data-scroll-target="#executive-summary"><span class="header-section-number">1</span> Executive Summary</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">2</span> Introduction</a>
+  <ul class="collapse">
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives"><span class="header-section-number">2.1</span> Objectives</a></li>
+  </ul></li>
+  <li><a href="#proposed-data-science-techniques" id="toc-proposed-data-science-techniques" class="nav-link" data-scroll-target="#proposed-data-science-techniques"><span class="header-section-number">3</span> Proposed Data Science Techniques</a>
+  <ul class="collapse">
+  <li><a href="#approach-1-classical-ml-models" id="toc-approach-1-classical-ml-models" class="nav-link" data-scroll-target="#approach-1-classical-ml-models"><span class="header-section-number">3.1</span> Approach 1: Classical ML models</a></li>
+  <li><a href="#approach-2-bert-language-models" id="toc-approach-2-bert-language-models" class="nav-link" data-scroll-target="#approach-2-bert-language-models"><span class="header-section-number">3.2</span> Approach 2: BERT language models</a></li>
+  <li><a href="#approach-3-llms" id="toc-approach-3-llms" class="nav-link" data-scroll-target="#approach-3-llms"><span class="header-section-number">3.3</span> Approach 3: LLMs</a></li>
+  </ul></li>
+  <li><a href="#proposed-data-product-phishsense-v2" id="toc-proposed-data-product-phishsense-v2" class="nav-link" data-scroll-target="#proposed-data-product-phishsense-v2"><span class="header-section-number">4</span> Proposed data product: PhishSense-v2</a></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation"><span class="header-section-number">5</span> Implementation</a>
+  <ul class="collapse">
+  <li><a href="#dataset" id="toc-dataset" class="nav-link" data-scroll-target="#dataset"><span class="header-section-number">5.1</span> Dataset</a></li>
+  <li><a href="#evaluation-metrics" id="toc-evaluation-metrics" class="nav-link" data-scroll-target="#evaluation-metrics"><span class="header-section-number">5.2</span> Evaluation metrics</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">6</span> Results</a>
+  <ul class="collapse">
+  <li><a href="#proposed-data-science-techniques-1" id="toc-proposed-data-science-techniques-1" class="nav-link" data-scroll-target="#proposed-data-science-techniques-1"><span class="header-section-number">6.1</span> Proposed data science techniques</a></li>
+  <li><a href="#proposed-data-product-phishsense-v2-1" id="toc-proposed-data-product-phishsense-v2-1" class="nav-link" data-scroll-target="#proposed-data-product-phishsense-v2-1"><span class="header-section-number">6.2</span> Proposed data product: PhishSense-v2</a></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">7</span> Discussion</a>
+  <ul class="collapse">
+  <li><a href="#proposed-data-science-techniques-2" id="toc-proposed-data-science-techniques-2" class="nav-link" data-scroll-target="#proposed-data-science-techniques-2"><span class="header-section-number">7.1</span> Proposed data science techniques</a></li>
+  <li><a href="#proposed-data-product-phishsense-v2-2" id="toc-proposed-data-product-phishsense-v2-2" class="nav-link" data-scroll-target="#proposed-data-product-phishsense-v2-2"><span class="header-section-number">7.2</span> Proposed data product: PhishSense-v2</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">8</span> Conclusion</a>
+  <ul class="collapse">
+  <li><a href="#recommendations" id="toc-recommendations" class="nav-link" data-scroll-target="#recommendations"><span class="header-section-number">8.1</span> Recommendations</a></li>
+  </ul></li>
+  
+  
+  
+  
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="../../final_report.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Sniffing for Phishing</h1>
+<p class="subtitle lead">Final Report for DSCI 591 Capstone Project</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ci Xu </p>
+             <p>Danish Karlin Isa </p>
+             <p>Jia Quan (Joseph) Lim </p>
+             <p>Lik Hang (Alex) Wong </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 25, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="executive-summary" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="executive-summary"><span class="header-section-number">1</span> Executive Summary</h2>
+<p>UBC Cybersecurity (the Partner) currently reviews suspicious emails manually, a process hindered by high volume and time sensitivity.</p>
+<p>We developed a machine learning (ML) pipeline to automatically classify emails as <code>benign</code> or <code>malicious</code>. This helps to reduce manual workload, accelerate threat detection, and improve cybersecurity at UBC.</p>
+<p>We evaluated classical ML models, BERT-based architectures, and large language models (LLMs). The final solution, PhishSense-v2, uses a stacked ensemble of four parallel <code>XGBClassifier</code> models, combined by a <code>SVC</code> model.</p>
+<p>PhishSense-v2 managed to achieve an F1-score of 0.75 on the <code>benign</code> class, marking a 50 percent improvement over the Partner’s existing ML pipeline.</p>
+</section>
+<section id="introduction" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="introduction"><span class="header-section-number">2</span> Introduction</h2>
+<p>Phishing emails pose a major cybersecurity threat, often designed to trick recipients into revealing sensitive information such as credentials and personal data. According to <span class="citation" data-cites="internet_crime_complaint_center_internet_2025">Internet Crime Complaint Center (<a href="#ref-internet_crime_complaint_center_internet_2025" role="doc-biblioref">2025</a>)</span>, business email compromise<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> ranks second in financial impact. At UBC, email users are frequent targets of malicious email campaigns and are at risk of engaging with malicious content, putting both individuals and the institution at risk.</p>
+<p>Users can report suspicious emails to the Partner for investigation. Emails identified as malicious and posing an urgent threat are recalled to prevent further exposure.</p>
+<p>The Partner currently uses a ML pipeline (<a href="#fig-current-pipeline" class="quarto-xref">Figure&nbsp;1</a>) to classify reported emails. However, its performance is limited by its reliance solely on the email’s subject and body. As a result, Analysts must manually review all reported emails to determine whether similar messages should be recalled from other inboxes. Given the high volume of reports, this process is both time-consuming and resource intensive.</p>
+<div class="cell" data-fig-width="6" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-current-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-current-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-current-pipeline">flowchart LR
+    EMAIL["Email"] --&gt; SUB_FEAT
+    EMAIL --&gt; BOD_FEAT
+    SUB_FEAT["Extract subject features with HashingVectorizer"] --&gt; SUB_PROB
+    SUB_PROB["Get predicted proabilities based on subject features"] --&gt; SCORER
+    BOD_FEAT["Extract subject features with HashingVectorizer"] --&gt; BOD_PROB
+    BOD_PROB["Get predicted proabilities based on body features"] --&gt; SCORER
+    SCORER["Scorer"] --&gt; FINAL
+    FINAL["Predicted class"]
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-current-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Current ML pipeline used by the Partner
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="objectives" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="objectives"><span class="header-section-number">2.1</span> Objectives</h3>
+<p>In collaboration with the Partner, we aim to develop a new ML pipeline that classifies an email as either <code>benign</code> or <code>malicious</code> through:</p>
+<ol type="1">
+<li><p>Enhancing feature extraction and engineering to better leverage both email metadata and content.</p></li>
+<li><p>Applying a combination of classical and advanced ML techniques to improve classification accuracy.</p></li>
+</ol>
+<p>The primary objective is to accurately identify benign emails, thereby reducing the number of tickets requiring manual review. This, in turn, shortens the Partner’s response time and strengthens cybersecurity at UBC.</p>
+</section>
+</section>
+<section id="proposed-data-science-techniques" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="proposed-data-science-techniques"><span class="header-section-number">3</span> Proposed Data Science Techniques</h2>
+<p>We explored three distinct approaches in this project:</p>
+<ol type="1">
+<li><p>Classical ML models, with a strong emphasis on feature engineering to extract meaningful signals from email data.</p></li>
+<li><p>Bidirectional Encoder Representations from Transformers (BERT) language models, which learn complex patterns directly from raw text using deep contextual embeddings.</p></li>
+<li><p>Large language models (LLMs), which leverage pre-trained models and prompt engineering to perform classification with minimal task-specific training.</p></li>
+</ol>
+<section id="approach-1-classical-ml-models" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="approach-1-classical-ml-models"><span class="header-section-number">3.1</span> Approach 1: Classical ML models</h3>
+<p>Classical ML models are relatively simple and have low computational overhead. This approach relies heavily on feature engineering to construct a representation of each email that is both information-rich and tailored to the model’s predictive capabilities. By transforming raw email data into structured features, we aimed to capture relevant patterns that could distinguish between benign and malicious messages.</p>
+<section id="feature-extraction" class="level4" data-number="3.1.1">
+<h4 data-number="3.1.1" class="anchored" data-anchor-id="feature-extraction"><span class="header-section-number">3.1.1</span> Feature extraction</h4>
+<p>We retrieved metadata and content from emails using the Python <code>email</code> package. The extracted metadata<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> can provide valuable signals for assessing the potential malicious intent of an email.</p>
+<p>To ensure consistency and robustness, we only considered header fields that comply with Request For Comments (RFC) standards. Non-compliant header fields<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> were dropped due to their variability and lack of standardisation.</p>
+<p>Email content is typically multipart, with each part associated with a content type. Most emails include a body in either HTML or plain text format or both. Many also contain additional content types such as images, videos, or application files. For the purposes of this project, we retained only the email body (both HTML and plain text parts) as the primary source of content for analysis. <code>CountVectorizer</code> was used to obtain representations of the plain text email body.</p>
+</section>
+<section id="feature-engineering" class="level4" data-number="3.1.2">
+<h4 data-number="3.1.2" class="anchored" data-anchor-id="feature-engineering"><span class="header-section-number">3.1.2</span> Feature engineering</h4>
+<p>To enhance predictive performance, we engineered features<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> that capture key characteristics distinguishing benign emails from malicious ones. These features were selected based on domain expertise provided by the Partner and research in phishing and spam detection, with the goal of creating a feature set that is both interpretable and effective for classification.</p>
+<p>We incorporated email authentication<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> results that verify the legitimacy of the sender’s domain and ensure that the message has not been altered in transit, which can be strong indicators of email authenticity.</p>
+<p>In addition, we engineered features to detect spoofing or obfuscation attempts, such as the number of mail server hops, mismatches between the <code>From</code> and <code>Reply-To</code> domains, and discrepancies between the name servers of the originating mail server and the sender’s domain.</p>
+<p>Malicious emails are also often generated using tools purchased on the dark web, resulting in messages that are poorly written, heavily formatted in HTML, and designed to evade detection. To capture these traits, we included features such as the number of grammatical errors, the frequency of whitespace<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> characters, and the presence and types of non-textual content<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
+</section>
+<section id="classifiers" class="level4" data-number="3.1.3">
+<h4 data-number="3.1.3" class="anchored" data-anchor-id="classifiers"><span class="header-section-number">3.1.3</span> Classifiers</h4>
+<p><a href="#tbl-classical-models" class="quarto-xref">Table&nbsp;1</a> lists the classical models evaluated in this project. These models were chosen based on their interpretability, computational efficiency, and historical effectiveness in text and email classification tasks.</p>
+<div id="tbl-classical-models" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-classical-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Classical models evaluated in this project with their associated rationales
+</figcaption>
+<div aria-describedby="tbl-classical-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 35%">
+<col style="width: 65%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>DummyClassifier</code> <span class="citation" data-cites="sklearn_api">(<a href="#ref-sklearn_api" role="doc-biblioref">Buitinck et al. 2013</a>)</span></td>
+<td style="text-align: left;">Serves as a baseline for benchmarking model performance</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>LogisticRegression</code> <span class="citation" data-cites="sklearn_api">(<a href="#ref-sklearn_api" role="doc-biblioref">Buitinck et al. 2013</a>)</span></td>
+<td style="text-align: left;">Interpretable, captures linear relationships between features and target label <span class="citation" data-cites="hilbe2016practical">(<a href="#ref-hilbe2016practical" role="doc-biblioref">Hilbe 2016</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>GaussianNB</code> (Naïve Bayes) <span class="citation" data-cites="sklearn_api">(<a href="#ref-sklearn_api" role="doc-biblioref">Buitinck et al. 2013</a>)</span></td>
+<td style="text-align: left;">Simple model well-suited for text classification, efficient training time <span class="citation" data-cites="sammut2011encyclopedia">(<a href="#ref-sammut2011encyclopedia" role="doc-biblioref">Sammut and Webb 2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>SVC</code> (Support Vector Machine) <span class="citation" data-cites="sklearn_api">(<a href="#ref-sklearn_api" role="doc-biblioref">Buitinck et al. 2013</a>)</span></td>
+<td style="text-align: left;">Effective for binary classification in high-dimensional spaces <span class="citation" data-cites="sammut2011encyclopedia">(<a href="#ref-sammut2011encyclopedia" role="doc-biblioref">Sammut and Webb 2011</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>RandomForestClassifier</code> <span class="citation" data-cites="sklearn_api">(<a href="#ref-sklearn_api" role="doc-biblioref">Buitinck et al. 2013</a>)</span></td>
+<td style="text-align: left;">Robust to noisy data <span class="citation" data-cites="parmar2018review">(<a href="#ref-parmar2018review" role="doc-biblioref">Parmar, Katariya, and Patel 2018</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>XGBClassifier</code> <span class="citation" data-cites="xgboost">(<a href="#ref-xgboost" role="doc-biblioref">Chen and Guestrin 2016</a>)</span></td>
+<td style="text-align: left;">Captures non-linear relationships, supports regularization, generalizes well <span class="citation" data-cites="omotehinwa2023hyperparameter">(<a href="#ref-omotehinwa2023hyperparameter" role="doc-biblioref">Omotehinwa and Oyewola 2023</a>)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>We also explored an ensemble learning approach using <code>StackingClassifier</code> <span class="citation" data-cites="sklearn_api">(<a href="#ref-sklearn_api" role="doc-biblioref">Buitinck et al. 2013</a>)</span>, where multiple base models were trained in parallel to generate predictions. These predictions were then used as inputs for a final estimator, which produced the overall prediction. An example of the architecture for this ensemble method is illustrated in <a href="#fig-stacking" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div class="cell" data-fig-width="3" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-stacking" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-stacking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-stacking">flowchart TD
+    EMAIL["Email"] --&gt; EST1
+    EMAIL --&gt; EST2
+    EST1["Estimator 1"] --&gt; FINEST
+    EST2["Estimator 2"] --&gt; FINEST
+    FINEST["Final estimator"] --&gt; PRED
+    PRED["Predicted class"]
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-stacking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Example architecture of a StackingClassifier
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="approach-2-bert-language-models" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="approach-2-bert-language-models"><span class="header-section-number">3.2</span> Approach 2: BERT language models</h3>
+<p>BERT language models captures rich contextual information by modelling the semantics and relationships between words. It is highly effective for natural language processing (NLP) tasks such as classification, topic modelling, and sentiment analysis. BERT is particularly well-suited for this project, as phishing indicators are often embedded in the nuanced language of email bodies.</p>
+<p>We applied open-source models to the cleaned plain-text content of emails to classify emails as <code>benign</code> or <code>malicious</code>, and generate labels as part of feature engineering to improve the performance of classical ML models.</p>
+<p><a href="#tbl-bert-models" class="quarto-xref">Table&nbsp;2</a> lists the BERT models evaluated in this project.</p>
+<div id="tbl-bert-models" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-bert-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: BERT language models evaluated in this project
+</figcaption>
+<div aria-describedby="tbl-bert-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 45%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Hugging Face repository</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Classification</td>
+<td style="text-align: left;">ElSlay/BERT-Phishing-Email-Model <span class="citation" data-cites="ElSlay">(<a href="#ref-ElSlay" role="doc-biblioref">Imran, n.d.</a>)</span></td>
+<td style="text-align: left;">Trained on 18,600 emails labelled as either <code>malicious</code> or <code>benign</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Classification</td>
+<td style="text-align: left;">ealvaradob/bert-finetuned-phishing <span class="citation" data-cites="ealvaradob">(<a href="#ref-ealvaradob" role="doc-biblioref">Alvarado, n.d.</a>)</span></td>
+<td style="text-align: left;">Trained on 80,000 emails, text messages, URLs, and HTML content labelled as either <code>malicious</code> or <code>benign</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Feature Engineering (Topic Modelling)</td>
+<td style="text-align: left;">MaartenGr/BERTopic_Wikipedia <span class="citation" data-cites="MaartenGr">(<a href="#ref-MaartenGr" role="doc-biblioref">Grootendorst, n.d.</a>)</span></td>
+<td style="text-align: left;">Trained on 1M+ Wikipedia pages; generates ~2,300 topic labels</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Feature Engineering (Sentiment Analysis)</td>
+<td style="text-align: left;">cardiffnlp/twitter-roberta-base-sentiment-latest <span class="citation" data-cites="camacho-collados-etal-2022-tweetnlp">(<a href="#ref-camacho-collados-etal-2022-tweetnlp" role="doc-biblioref">Camacho-collados et al. 2022</a>)</span></td>
+<td style="text-align: left;">Trained on 124M tweets; classifies text as <code>positive</code>, <code>neutral</code>, or <code>negative</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="approach-3-llms" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="approach-3-llms"><span class="header-section-number">3.3</span> Approach 3: LLMs</h3>
+<p>LLMs are well-suited for this project due to their ability to infer meaning from unstructured text, outperforming models like BERT. Unlike classical models, LLMs require minimal feature engineering.</p>
+<p>A locally-hostel LLM<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> <span class="citation" data-cites="UnslothAI">(<a href="#ref-UnslothAI" role="doc-biblioref">Unsloth AI 2025</a>)</span> was used for zero-shot email classification and to reverse-engineer label assignments, supporting feature engineering for classical models. In both cases, only the email header or body was provided due to context window limitations. The general workflow is illustrated in <a href="#fig-llm-general-workflow" class="quarto-xref">Figure&nbsp;3</a>.</p>
+<div class="cell" data-fig-width="2.5" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-llm-general-workflow" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-llm-general-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-llm-general-workflow">flowchart TD
+    A["Prompt LLM to classify an email or justify a label with header or body attached"] --&gt; B
+    B["LLM generates unstructured response that includes its reasoning process"] --&gt; C
+    C["Prompt LLM again to summarise the unstructured response into a structured JSON format"] --&gt; D
+    D["LLM summarises unstructured response into a structured JSON response"]
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-llm-general-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Workflow for LLM
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#tbl-llm-json" class="quarto-xref">Table&nbsp;3</a> describes the fields in structured JSON response.</p>
+<div id="tbl-llm-json" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-llm-json-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: LLM response formatted in JSON
+</figcaption>
+<div aria-describedby="tbl-llm-json-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 35%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Possible values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Label</td>
+<td style="text-align: left;">Label assigned by LLM</td>
+<td style="text-align: left;"><code>benign</code>, <code>malicious</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Confidence</td>
+<td style="text-align: left;">Confidence level of the label assignment</td>
+<td style="text-align: left;"><code>low</code> (weak/conflicting evidence), <code>medium</code> (some uncertainty), <code>high</code> (strong evidence)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Reasons</td>
+<td style="text-align: left;">List containing three reasons justifying given label</td>
+<td style="text-align: left;">Short justifications referencing parts of the email</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>We leveraged prompt engineering<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> to improve the quality and ensure consistency of the LLM’s responses.</p>
+</section>
+</section>
+<section id="proposed-data-product-phishsense-v2" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="proposed-data-product-phishsense-v2"><span class="header-section-number">4</span> Proposed data product: PhishSense-v2</h2>
+<p>PhishSense-v2 is a containerised ML pipeline that predicts the probability of an email being <code>benign</code>. The pipeline is visualised in <a href="#fig-phishsense-v2" class="quarto-xref">Figure&nbsp;4</a>.</p>
+<div class="cell" data-fig-width="2.5" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-phishsense-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-phishsense-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-phishsense-v2">flowchart TD
+    A["Email (in eml file format)"] --&gt; B
+    B["Extract metadata from email"] --&gt; C
+    C["Generate feature set from metadata"] --&gt; D
+    D["Use feature set to predict probabilities"]
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-phishsense-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Pipeline for PhishSense-v2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>It is encapsulated in a Docker container and callable via a RESTful API, allowing PhishSense-v2 to serve as a drop-in replacement for the current PhishSense. This design aligns with the Partner’s specifications, requiring minimal workflow changes for Cybersecurity Analysts reviewing reported emails.</p>
+<p>The step-by-step workflow is described in <a href="#fig-workflow" class="quarto-xref">Figure&nbsp;5</a>.</p>
+<div class="cell" data-fig-width="2.5" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-workflow" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-workflow">flowchart TD
+    A["User reports a suspicious email"] --&gt; B
+    B["IT ticketing system receives the report"] --&gt; C
+    C["IT ticketing system automatically makes a HTTP POST request to PhishSense-v2 with reported email attached"] --&gt;D
+    D["PhishSense-v2 generates predicted label with associated probabilities in JSON format"] --&gt; E
+    E["PhishSense-v2 makes a HTTP POST request to the IT ticketing system with the predictions in JSON format attached"] --&gt; F
+    F["IT ticketing system receives the prediction data and automatically populates the predicted label and associated probabilities"]
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Step-by-step workflow
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="implementation" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="implementation"><span class="header-section-number">5</span> Implementation</h2>
+<section id="dataset" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="dataset"><span class="header-section-number">5.1</span> Dataset</h3>
+<p>The dataset comprises 25,625 emails that were reported as suspicious by users and had already bypassed existing rule-based filters. They are in the <code>eml</code> file format and are manually reviewed and labelled by the Partner.</p>
+<p><a href="#tbl-target-definitions" class="quarto-xref">Table&nbsp;4</a> defines the target labels used by the Partner.</p>
+<div id="tbl-target-definitions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-target-definitions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Definitions of target labels used by the Partner
+</figcaption>
+<div aria-describedby="tbl-target-definitions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 31%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Target</th>
+<th style="text-align: left;">Threat level when reviewed</th>
+<th style="text-align: left;">Sub-labels</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>benign</code></td>
+<td style="text-align: left;">Little/no threat</td>
+<td style="text-align: left;"><code>legitimate</code>, <code>spam</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>malicious</code></td>
+<td style="text-align: left;">High/active threat</td>
+<td style="text-align: left;"><code>CEO_fraud</code>, <code>phishing</code>, <code>reply-chain-attack</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The dataset was split into train (70%) and test (30%) sets to ensure robust model evaluation and prevent data leakage <span class="citation" data-cites="rosenblatt2024data">(<a href="#ref-rosenblatt2024data" role="doc-biblioref">Rosenblatt et al. 2024</a>)</span>. To facilitate rapid prototyping and debugging, we created two smaller subsets of the train set containing 3,000 and 200 samples respectively using stratified random sampling <span class="citation" data-cites="singh1996stratified">(<a href="#ref-singh1996stratified" role="doc-biblioref">Singh et al. 1996</a>)</span>. This preserves statistical characteristics of the full train set <span class="citation" data-cites="dobbin2011optimally">(<a href="#ref-dobbin2011optimally" role="doc-biblioref">Dobbin and Simon 2011</a>)</span> and ensures that the evaluation metrics reflect the model’s performance across all classes, particularly in the presence of class imbalance.</p>
+<p><a href="#fig-eda-emails" class="quarto-xref">Figure&nbsp;6</a> shows the distribution of emails across the target labels for the train set.</p>
+<div id="cell-fig-eda-emails" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-emails" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-eda-emails-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="final_report_files/figure-html/fig-eda-emails-output-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-eda-emails-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Distribution of emails in train set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluation-metrics" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="evaluation-metrics"><span class="header-section-number">5.2</span> Evaluation metrics</h3>
+<p>Model performance will be evaluated using the F1-score<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a> for the <code>benign</code> class and the overall false negative/benign rate<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a> (FNR). A high F1-score reflects the model’s ability to correctly identify most <code>benign</code> emails while minimising false negative/benign predictions. Maintaining a low FNR is also critical to avoid mistakenly dismissing malicious emails, which would increase risk exposure for UBC email users.</p>
+<p>The Partner has set performance targets of an F1-score ≥ 0.85 and an FNR ≤ 0.001.</p>
+</section>
+</section>
+<section id="results" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="results"><span class="header-section-number">6</span> Results</h2>
+<section id="proposed-data-science-techniques-1" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="proposed-data-science-techniques-1"><span class="header-section-number">6.1</span> Proposed data science techniques</h3>
+<section id="approach-1-classical-ml-models-1" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="approach-1-classical-ml-models-1"><span class="header-section-number">6.1.1</span> Approach 1: Classical ML models</h4>
+<p><a href="#tbl-classical-results" class="quarto-xref">Table&nbsp;5</a> outlines the cross-validation results of the classical models.</p>
+<div class="cell" data-execution_count="4">
+<div id="tbl-classical-results" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="4">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-classical-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Cross-validation results for classical models
+</figcaption>
+<div aria-describedby="tbl-classical-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="22">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Fit time (s)</th>
+<th style="text-align: left;">Score time (s)</th>
+<th style="text-align: left;">Train score</th>
+<th style="text-align: left;">Valid score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DummyClassifier</td>
+<td style="text-align: left;">0.408 (+/- 0.025)</td>
+<td style="text-align: left;">0.097 (+/- 0.018)</td>
+<td style="text-align: left;">0.000 (+/- 0.000)</td>
+<td style="text-align: left;">0.000 (+/- 0.000)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LogisticRegression</td>
+<td style="text-align: left;">0.875 (+/- 0.090)</td>
+<td style="text-align: left;">0.097 (+/- 0.021)</td>
+<td style="text-align: left;">0.990 (+/- 0.002)</td>
+<td style="text-align: left;">0.609 (+/- 0.065)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GaussianNB</td>
+<td style="text-align: left;">1.183 (+/- 0.093)</td>
+<td style="text-align: left;">0.295 (+/- 0.009)</td>
+<td style="text-align: left;">0.969 (+/- 0.004)</td>
+<td style="text-align: left;">0.561 (+/- 0.066)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SVC</td>
+<td style="text-align: left;">1.237 (+/- 0.039)</td>
+<td style="text-align: left;">0.278 (+/- 0.021)</td>
+<td style="text-align: left;">0.483 (+/- 0.018)</td>
+<td style="text-align: left;">0.281 (+/- 0.120)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RandomForestClassifier</td>
+<td style="text-align: left;">2.461 (+/- 0.265)</td>
+<td style="text-align: left;">0.124 (+/- 0.015)</td>
+<td style="text-align: left;">0.999 (+/- 0.001)</td>
+<td style="text-align: left;">0.493 (+/- 0.105)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">XGBClassifier</td>
+<td style="text-align: left;">4.098 (+/- 0.256)</td>
+<td style="text-align: left;">0.102 (+/- 0.018)</td>
+<td style="text-align: left;">0.998 (+/- 0.001)</td>
+<td style="text-align: left;">0.605 (+/- 0.071)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>We also implemented an ensemble model using <code>StackingClassifier</code>, where two separate <code>XGBClassifier</code> models are trained on header and content features, respectively. Their predictions are combined by a final estimator to produce the overall output. The performance of this ensemble approach is summarized in <a href="#tbl-stacking-results" class="quarto-xref">Table&nbsp;6</a>.</p>
+<div class="cell" data-execution_count="5">
+<div id="tbl-stacking-results" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="5">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-stacking-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Cross-validation results for the 2-model ensemble approach
+</figcaption>
+<div aria-describedby="tbl-stacking-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="23">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Final estimator</th>
+<th style="text-align: left;">Fit time (s)</th>
+<th style="text-align: left;">Score time (s)</th>
+<th style="text-align: left;">Train score</th>
+<th style="text-align: left;">Valid score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">LogisticRegression</td>
+<td style="text-align: left;">19.521 (+/- 1.332)</td>
+<td style="text-align: left;">0.107 (+/- 0.016)</td>
+<td style="text-align: left;">0.994 (+/- 0.003)</td>
+<td style="text-align: left;">0.617 (+/- 0.057)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SVC</td>
+<td style="text-align: left;">19.582 (+/- 1.081)</td>
+<td style="text-align: left;">0.120 (+/- 0.020)</td>
+<td style="text-align: left;">0.983 (+/- 0.010)</td>
+<td style="text-align: left;">0.614 (+/- 0.022)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">XGBClassifier</td>
+<td style="text-align: left;">20.050 (+/- 1.178)</td>
+<td style="text-align: left;">0.114 (+/- 0.025)</td>
+<td style="text-align: left;">0.933 (+/- 0.028)</td>
+<td style="text-align: left;">0.557 (+/- 0.043)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>We further separated the header and content features into text and non-text features, training four separate <code>XGBClassifier</code> models accordingly. <code>SVC</code> was used as the final estimator to aggregate their predictions. <a href="#tbl-architecture-results" class="quarto-xref">Table&nbsp;7</a> presents the performance comparison across the single-, dual-, and quad-model architectures.</p>
+<div class="cell" data-execution_count="6">
+<div id="tbl-architecture-results" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="6">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-architecture-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Cross-validation results for different ensemble architectures
+</figcaption>
+<div aria-describedby="tbl-architecture-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="24">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 20%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Architecture</th>
+<th style="text-align: left;">Fit time (s)</th>
+<th style="text-align: left;">Score time (s)</th>
+<th style="text-align: left;">Train score</th>
+<th style="text-align: left;">Valid score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1 XGBClassifier</td>
+<td style="text-align: left;">4.075 (+/- 0.307)</td>
+<td style="text-align: left;">0.098 (+/- 0.017)</td>
+<td style="text-align: left;">0.998 (+/- 0.001)</td>
+<td style="text-align: left;">0.605 (+/- 0.071)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2 XGBClassifier + SVC</td>
+<td style="text-align: left;">19.445 (+/- 1.078)</td>
+<td style="text-align: left;">0.122 (+/- 0.022)</td>
+<td style="text-align: left;">0.983 (+/- 0.010)</td>
+<td style="text-align: left;">0.614 (+/- 0.022)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4 XGBClassifier + SVC</td>
+<td style="text-align: left;">18.362 (+/- 1.224)</td>
+<td style="text-align: left;">0.119 (+/- 0.015)</td>
+<td style="text-align: left;">0.987 (+/- 0.005)</td>
+<td style="text-align: left;">0.647 (+/- 0.027)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="approach-2-bert-language-models-1" class="level4" data-number="6.1.2">
+<h4 data-number="6.1.2" class="anchored" data-anchor-id="approach-2-bert-language-models-1"><span class="header-section-number">6.1.2</span> Approach 2: BERT language models</h4>
+<p><a href="#tbl-bert-classify-results" class="quarto-xref">Table&nbsp;8</a> outlines the results achieved by the BERT language models for classification.</p>
+<div class="cell" data-execution_count="7">
+<div id="tbl-bert-classify-results" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-bert-classify-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Results of BERT models for classification
+</figcaption>
+<div aria-describedby="tbl-bert-classify-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="25">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 9%">
+<col style="width: 11%">
+<col style="width: 25%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Recall</th>
+<th style="text-align: right;">F1-score</th>
+<th style="text-align: right;">False Benign Rate / FNR</th>
+<th style="text-align: right;">False Malicious Rate / FPR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">elslay</td>
+<td style="text-align: right;">0.211</td>
+<td style="text-align: right;">0.632</td>
+<td style="text-align: right;">0.316</td>
+<td style="text-align: right;">0.556</td>
+<td style="text-align: right;">0.368</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ealvaradob</td>
+<td style="text-align: right;">0.179</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">0.241</td>
+<td style="text-align: right;">0.395</td>
+<td style="text-align: right;">0.632</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#fig-bert-topics" class="quarto-xref">Figure&nbsp;7</a> visualises the count of topics obtained for a sample of 100 emails.</p>
+<div id="fig-bert-topics" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bert-topics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../results/BERT/email_count_per_topic_chart.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bert-topics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Distribution of topic labels generated by topic modelling BERT model
+</figcaption>
+</figure>
+</div>
+<p><a href="#tbl-bert-sentiment-results" class="quarto-xref">Table&nbsp;9</a> outlines the results achieved by the BERT language model for sentiment analysis on a sample of 100 emails.</p>
+<div class="cell" data-execution_count="8">
+<div id="tbl-bert-sentiment-results" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="8">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-bert-sentiment-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Distribution of sentiment labels generated by BERT sentiment analysis model
+</figcaption>
+<div aria-describedby="tbl-bert-sentiment-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="26">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Positive</th>
+<th style="text-align: right;">Neutral</th>
+<th style="text-align: right;">Negative</th>
+<th style="text-align: right;">Parsing Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="approach-3-llms-1" class="level4" data-number="6.1.3">
+<h4 data-number="6.1.3" class="anchored" data-anchor-id="approach-3-llms-1"><span class="header-section-number">6.1.3</span> Approach 3: LLMs</h4>
+<p>The LLM produced accurate classifications and high-quality responses that closely mirrored human reasoning when evaluating emails. However, there are multiple occasions where the quality of responses were poor, where the model showed signs of hallucinations and leakage of training data.</p>
+<p>Sample responses can be viewed in <a href="#sec-appendix-3" class="quarto-xref">Section&nbsp;11</a>.</p>
+</section>
+</section>
+<section id="proposed-data-product-phishsense-v2-1" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="proposed-data-product-phishsense-v2-1"><span class="header-section-number">6.2</span> Proposed data product: PhishSense-v2</h3>
+<p>PhishSense-v2 contains an classifier with a stacked architecture implemented using <code>StackingClassifier</code>, comprising four <code>XGBClassifier</code> estimators whose predictions are aggregated by a final SVC to produce the final classification. The model takes as input the engineered feature set (split into header and content features), along with separate CountVectorizer representations of the subject line and cleaned plain text.</p>
+<p><a href="#tbl-phishsense-results" class="quarto-xref">Table&nbsp;10</a> outlines the performance of PhishSense-v2 with the current production model, PhishSense, for comparison.</p>
+<div class="cell" data-execution_count="9">
+<div id="tbl-phishsense-results" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="9">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-phishsense-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: Results of PhishSense and PhishSense-v2
+</figcaption>
+<div aria-describedby="tbl-phishsense-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="27">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 9%">
+<col style="width: 11%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 22%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Dataset</th>
+<th style="text-align: right;">Precision</th>
+<th style="text-align: right;">Recall</th>
+<th style="text-align: right;">F1-score</th>
+<th style="text-align: right;">False Benign Rate / FNR</th>
+<th style="text-align: right;">False Malicious Rate / FPR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">PhishSense-v2</td>
+<td style="text-align: left;">train</td>
+<td style="text-align: right;">0.887</td>
+<td style="text-align: right;">0.889</td>
+<td style="text-align: right;">0.888</td>
+<td style="text-align: right;">0.046</td>
+<td style="text-align: right;">0.111</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PhishSense-v2</td>
+<td style="text-align: left;">test</td>
+<td style="text-align: right;">0.757</td>
+<td style="text-align: right;">0.748</td>
+<td style="text-align: right;">0.753</td>
+<td style="text-align: right;">0.097</td>
+<td style="text-align: right;">0.252</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PhishSense</td>
+<td style="text-align: left;">test</td>
+<td style="text-align: right;">0.648</td>
+<td style="text-align: right;">0.498</td>
+<td style="text-align: right;">0.563</td>
+<td style="text-align: right;">0.11</td>
+<td style="text-align: right;">0.502</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#fig-conf-mat" class="quarto-xref">Figure&nbsp;8</a> shows the confusion matrices for PhishSense-v2 and PhishSense evaluated on the test set.</p>
+<div id="fig-conf-mat" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-conf-mat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-conf-mat" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-conf-mat-phishsense-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-conf-mat-phishsense-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../results/final_results/cm_phishsense-v2_test.png" class="img-fluid figure-img" data-ref-parent="fig-conf-mat">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-conf-mat-phishsense-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) PhishSense-v2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-conf-mat" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-conf-mat-phishsense" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-conf-mat-phishsense-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../results/final_results/cm_phishsense_test.png" class="img-fluid figure-img" data-ref-parent="fig-conf-mat">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-conf-mat-phishsense-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) PhishSense
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-conf-mat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Confusion matrices obtained from the evaluation on the test set
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="discussion" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="discussion"><span class="header-section-number">7</span> Discussion</h2>
+<section id="proposed-data-science-techniques-2" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="proposed-data-science-techniques-2"><span class="header-section-number">7.1</span> Proposed data science techniques</h3>
+<section id="approach-1-classical-ml-models-2" class="level4" data-number="7.1.1">
+<h4 data-number="7.1.1" class="anchored" data-anchor-id="approach-1-classical-ml-models-2"><span class="header-section-number">7.1.1</span> Approach 1: Classical ML models</h4>
+<p>As shown in <a href="#tbl-classical-results" class="quarto-xref">Table&nbsp;5</a>, <code>XGBClassifier</code> outperformed most other models, which can be attirbuted to its ability to capture non-linear relationships between the features and target. However, an inspection of its feature importances revealed a heavy reliance on <code>CountVectorizer</code> features, shown in <a href="#fig-xgb-importances" class="quarto-xref">Figure&nbsp;9</a>.</p>
+<div id="fig-xgb-importances" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-xgb-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../results/base_classifier_selection/xgb_feature_importances.png" height="300" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-xgb-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Feature importances for single <code>XGBClassifier</code>
+</figcaption>
+</figure>
+</div>
+<p>To address this, we adopted an ensemble approach using a <code>StackingClassifier</code> that combines two <code>XGBClassifier</code> base estimators – one trained on email headers and the other on content – whose predictions are aggregated by a final estimator. The goal was to allow different parts of the email to be independently analysed and improve model generalization. However, <a href="#fig-header-importances" class="quarto-xref">Figure&nbsp;10 (a)</a> and <a href="#fig-body-importances" class="quarto-xref">Figure&nbsp;10 (b)</a> show the base estimators remained overly dependent on CountVectorizer features.</p>
+<div id="fig-dual-xgb-importances" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dual-xgb-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-dual-xgb-importances" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-header-importances" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-header-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../results/stacking_final_estimator/header_feat_importances.png" class="img-fluid figure-img" data-ref-parent="fig-dual-xgb-importances">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-header-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Header features
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-dual-xgb-importances" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-body-importances" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-body-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../results/stacking_final_estimator/body_feat_importances.png" class="img-fluid figure-img" data-ref-parent="fig-dual-xgb-importances">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-body-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Body features
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dual-xgb-importances-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Feature importances for dual <code>XGBClassifier</code>
+</figcaption>
+</figure>
+</div>
+<p>To mitigate this, we expanded the ensemble to include four <code>XGBClassifier</code> models: each trained on either the header or body and using either engineered features or <code>CountVectorizer</code> features. This design aimed to reduce overfitting to the <code>CountVectorizer</code> features.</p>
+</section>
+<section id="approach-2-bert-language-models-2" class="level4" data-number="7.1.2">
+<h4 data-number="7.1.2" class="anchored" data-anchor-id="approach-2-bert-language-models-2"><span class="header-section-number">7.1.2</span> Approach 2: BERT language models</h4>
+<section id="text-classification" class="level5" data-number="7.1.2.1">
+<h5 data-number="7.1.2.1" class="anchored" data-anchor-id="text-classification"><span class="header-section-number">7.1.2.1</span> Text classification</h5>
+<p>Both BERT classifiers struggled with classifying benign emails within the sampled test data, with over half of the malicious emails were misclassified as <code>benign</code> by both classifiers.</p>
+<p>This poor performance can be attributed to differences in the training data and our dataset. Specifically, the classifiers used were trained with datasets that include legitimate corporate communication emails as the <code>benign</code> class. In contrast, both classes in our dataset consists suspicious emails that made it to users’ inboxes and reported, resulting in a narrower distinction between benign and malicious examples.</p>
+</section>
+<section id="feature-engineering-1" class="level5" data-number="7.1.2.2">
+<h5 data-number="7.1.2.2" class="anchored" data-anchor-id="feature-engineering-1"><span class="header-section-number">7.1.2.2</span> Feature engineering</h5>
+<p>The high variance of labels generated by the topic modelling BERT model introduced significant noise, which reduces the reliability of using topic modeling as a feature. Additionally, applying the model to the full training dataset (17,937 emails) would be time-intensive, both in computation and in validating topic accuracy. As such, we decided not to include topic modeling as a feature in our classification task.</p>
+</section>
+<section id="sentiment-analysis" class="level5" data-number="7.1.2.3">
+<h5 data-number="7.1.2.3" class="anchored" data-anchor-id="sentiment-analysis"><span class="header-section-number">7.1.2.3</span> Sentiment analysis</h5>
+<p>The model labelled most emails as <code>neutral</code>, with most empty emails being labelled as <code>positive</code>. As such, we concluded that the sentiment analysis BERT model did not provide meaningful signals for our email classification task and decided against incorporating it in our data product.</p>
+</section>
+</section>
+<section id="approach-3-llms-2" class="level4" data-number="7.1.3">
+<h4 data-number="7.1.3" class="anchored" data-anchor-id="approach-3-llms-2"><span class="header-section-number">7.1.3</span> Approach 3: LLMs</h4>
+<p>A key strength of LLMs is the interpretability of their outputs. Each classification includes a natural language rationale, enhancing transparency and trust. LLMs also require no task-specific training or manual feature engineering and can natively process multilingual text, making them highly adaptable.</p>
+<p>Despite these benefits, LLMs face significant challenges in production. The most critical is their high computational cost, where each classification took about 6 minutes, with an additional 2 minutes for summarisation in a resource-unconstrained environment. Each prompt consumed ~45 GB of RAM and fully utilised all 16 CPU cores of the VM. While GPU acceleration could reduce inference time, the resource demands remain prohibitive for production.</p>
+<p>Another concern is hallucination, especially under resource constraints involving swap memory that leads to inconsistent outputs. In some cases, signs of training data leakage were observed, with the model repeating phrases or generating nonsensical output until the token limit was reached.</p>
+<p>As such, we have decided against incorporating LLMs into PhishSense-v2. Despite that, we have incorporated the insights in feature engineering for classical models.</p>
+</section>
+</section>
+<section id="proposed-data-product-phishsense-v2-2" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="proposed-data-product-phishsense-v2-2"><span class="header-section-number">7.2</span> Proposed data product: PhishSense-v2</h3>
+<p>While PhishSense-v2 showed measurable improvements over the original model, its performance revealed several important nuances. This includes dataset quality and the influence of probability thresholds on classification outcomes.</p>
+<section id="dataset-quality" class="level4" data-number="7.2.1">
+<h4 data-number="7.2.1" class="anchored" data-anchor-id="dataset-quality"><span class="header-section-number">7.2.1</span> Dataset quality</h4>
+<section id="similarity-between-legitimate-and-spam-emails" class="level5" data-number="7.2.1.1">
+<h5 data-number="7.2.1.1" class="anchored" data-anchor-id="similarity-between-legitimate-and-spam-emails"><span class="header-section-number">7.2.1.1</span> Similarity between <code>legitimate</code> and <code>spam</code> emails</h5>
+<p>Effective model training depends on high-quality data. A key challenge in this project is the similarity between <code>legitimate</code> and <code>spam</code> emails. Most user-reported emails contained suspicious elements regardless of their label, making it challenging for the model to distinguish between classes. While <code>spam</code> emails (<a href="#fig-spam-email" class="quarto-xref">Figure&nbsp;11</a>) appear more suspicious than <code>legitimate</code> messages, both are considered as <code>benign</code> (refer to <a href="#tbl-target-definitions" class="quarto-xref">Table&nbsp;4</a>). Since the model does relies on the email body, these mixed signals hampers its ability to learn a clear boundary between <code>benign</code> and <code>malicious</code> bodies.</p>
+<div id="fig-spam-email" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-spam-email-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../img/final_report/spam-email.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spam-email-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: A <code>spam</code> email labelled as <code>benign</code>
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="ambiguous-relationship-between-features-and-label" class="level5" data-number="7.2.1.2">
+<h5 data-number="7.2.1.2" class="anchored" data-anchor-id="ambiguous-relationship-between-features-and-label"><span class="header-section-number">7.2.1.2</span> Ambiguous relationship between features and label</h5>
+<p>In several instances, the engineered features did not correspond well with the assigned labels. For example, <a href="#fig-ambiguous-emails" class="quarto-xref">Figure&nbsp;12</a> shows two nearly identical emails (with the same template and 1 minor difference) have similar feature sets, but were labelled differently. These inconsistencies weaken the relationship between features and labels, making it difficult for the model to learn reliable patterns or infer the logic behind label assignments.</p>
+<div id="fig-ambiguous-emails" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ambiguous-emails-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-ambiguous-emails" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-ambiguous-emails-benign" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-ambiguous-emails-benign-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../img/final_report/ambiguous_benign.jpg" class="img-fluid figure-img" data-ref-parent="fig-ambiguous-emails">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-ambiguous-emails-benign-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Labelled <code>benign</code>
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-ambiguous-emails" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-ambiguous-emails-malicious" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-ambiguous-emails-malicious-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../../img/final_report/ambiguous_malicious.jpg" class="img-fluid figure-img" data-ref-parent="fig-ambiguous-emails">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-ambiguous-emails-malicious-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Labelled <code>malicious</code>
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ambiguous-emails-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Similar emails in the dataset, but with different labels
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="malicious-emails-encapsulated-within-legitimate-emails" class="level5" data-number="7.2.1.3">
+<h5 data-number="7.2.1.3" class="anchored" data-anchor-id="malicious-emails-encapsulated-within-legitimate-emails"><span class="header-section-number">7.2.1.3</span> Malicious emails encapsulated within legitimate emails</h5>
+<p>Some emails are user-forwarded malicious emails, where a <code>malicious</code> email is encapsulated within an otherwise <code>legitimate</code> email. In such cases, the email header may appear <code>benign</code> while the content is <code>malicious</code> which creates conflicting signals.</p>
+</section>
+<section id="empty-emails" class="level5" data-number="7.2.1.4">
+<h5 data-number="7.2.1.4" class="anchored" data-anchor-id="empty-emails"><span class="header-section-number">7.2.1.4</span> Empty emails</h5>
+<p>Some emails in the dataset had empty bodies, resulting in the model defaulting to predicting <code>benign</code>, even when the subject line is suspicious. To address this, we relabelled all empty-content emails as <code>malicious</code>, ensuring that future emails with empty content are flagged for manual review.</p>
+</section>
+</section>
+<section id="url-features" class="level4" data-number="7.2.2">
+<h4 data-number="7.2.2" class="anchored" data-anchor-id="url-features"><span class="header-section-number">7.2.2</span> URL features</h4>
+<p>We initially incorporated URL features such as detecting redirection and verifying the security certificate during prototyping. However, an exploration of the extracted URLs revealed that most of the links lead to web forms that no longer exist or are broken. As web pages are dynamic, it was not possible to obtain the characteristics of the URLs at the time when the email was sent.</p>
+</section>
+<section id="probability-thresholds" class="level4" data-number="7.2.3">
+<h4 data-number="7.2.3" class="anchored" data-anchor-id="probability-thresholds"><span class="header-section-number">7.2.3</span> Probability thresholds</h4>
+<p>In PhishSense-v2, the model uses a probability threshold of above ~0.75 to classify emails as <code>malicious</code>, requiring high confidence before assigning the <code>malicious</code> label. This conservative threshold increases the FNR by misclassifying some <code>malicious</code> emails as <code>benign</code>. However, lowering the threshold to 0.3 does not significantly affect its performance metrics. To support flexible decision-making, PhishSense-v2 returns the probability values instead.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">8</span> Conclusion</h2>
+<p>This project introduced a new ML pipeline to streamline the Partner’s workflow for reviewing suspicious emails. Our data product, PhishSense-v2, outperformed the existing pipeline in classifying <code>benign</code> emails. While further testing and refinement are recommended, the results demonstrate meaningful progress towards automating the email review process and enhancing cybersecurity at UBC.</p>
+<section id="recommendations" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="recommendations"><span class="header-section-number">8.1</span> Recommendations</h3>
+<p>To further improve the model performance, we propose the following recommendations for future work.</p>
+<section id="audit-label-assignments-in-the-dataset" class="level4" data-number="8.1.1">
+<h4 data-number="8.1.1" class="anchored" data-anchor-id="audit-label-assignments-in-the-dataset"><span class="header-section-number">8.1.1</span> Audit label assignments in the dataset</h4>
+<p>A comprehensive audit of label assignments is essential, particularly in cases where structurally similar emails have been assigned different labels. This process should involve the development of clear and standardised labelling guidelines. Such efforts will help reduce ambiguity and improve abel consistency, thereby strengthening the foundation for model training.</p>
+</section>
+<section id="cleaning-the-dataset" class="level4" data-number="8.1.2">
+<h4 data-number="8.1.2" class="anchored" data-anchor-id="cleaning-the-dataset"><span class="header-section-number">8.1.2</span> Cleaning the dataset</h4>
+<p>The dataset should ideally consist only of suspicious emails in its original form, preserving both the header and body content. This helps to minimise noise introduced by forwarded messages, where benign headers accompany malicious content. A cleaner dataset will help the model learn more accurate patterns and reduce wrong predictions.</p>
+</section>
+<section id="expand-feature-set-for-prediction" class="level4" data-number="8.1.3">
+<h4 data-number="8.1.3" class="anchored" data-anchor-id="expand-feature-set-for-prediction"><span class="header-section-number">8.1.3</span> Expand feature set for prediction</h4>
+<p>While the team lacks formal training in email security, we believe we have engineered the best possible feature set within the time constraints of this project. Nevertheless, the feature set could be further expanded through collaboration with domain experts. A more comprehensive set of features would provide the model with richer information, potentially improving prediction accuracy.</p>
+</section>
+<section id="explore-transformer-based-models" class="level4" data-number="8.1.4">
+<h4 data-number="8.1.4" class="anchored" data-anchor-id="explore-transformer-based-models"><span class="header-section-number">8.1.4</span> Explore transformer-based models</h4>
+<p>Due to limited computational resources, the use of BERT language models was constrained. Future work should revisit these models, as BERT’s ability to capture semantic nuances could significantly improve classification accuracy. Fine-tuning on the Partner’s dataset may enhance contextual understanding, though it requires a large and well-cleaned dataset.</p>
+</section>
+</section>
+</section>
+
+
+
+
+
+
+<div id="quarto-appendix" class="default"><section id="sec-appendix-1" class="level2 appendix" data-number="9"><h2 class="anchored quarto-appendix-heading"><span class="header-section-number">9</span> Appendix 1</h2><div class="quarto-appendix-contents">
+
+<p><a href="#tbl-feat-extraction" class="quarto-xref">Table&nbsp;11</a> lists the features that were extracted from the <code>eml</code> files.</p>
+<div id="tbl-feat-extraction" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-feat-extraction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: List of features extracted from <code>eml</code> files
+</figcaption>
+<div aria-describedby="tbl-feat-extraction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 42%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>From_email</code></td>
+<td style="text-align: left;">Sender’s email</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>From_email_domain</code></td>
+<td style="text-align: left;">Sender’s email domain</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>To_email</code></td>
+<td style="text-align: left;">Recipient’s email</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>To_email_domain</code></td>
+<td style="text-align: left;">Recipient’s email domain</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Subject</code></td>
+<td style="text-align: left;">Email subject line</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Received</code></td>
+<td style="text-align: left;">Routing information of the email</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Authentication-Results</code></td>
+<td style="text-align: left;">Summary results of authentication checks</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Received-SPF</code></td>
+<td style="text-align: left;">SPF check result</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>DKIM-Signature</code></td>
+<td style="text-align: left;">DKIM check result</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Content-Language</code></td>
+<td style="text-align: left;">Language declared for the email content</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Reply-To_domain</code></td>
+<td style="text-align: left;">Reply-To email domain</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Content_types</code></td>
+<td style="text-align: left;">Content types present in the email</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>text_html</code></td>
+<td style="text-align: left;">HTML content of the email body</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>text_plain</code></td>
+<td style="text-align: left;">Plain text content of the email body</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>text_clean</code></td>
+<td style="text-align: left;">Cleaned plain text content (with non-UBC email tag and newline characters removed)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>text_hyperlinks</code></td>
+<td style="text-align: left;">List of hyperlinks in the email body</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><a href="#tbl-feat-eng-header" class="quarto-xref">Table&nbsp;12</a> and <a href="#tbl-feat-eng-body" class="quarto-xref">Table&nbsp;13</a> list the features that were engineered from the header and body of the <code>eml</code> files respectively.</p>
+<div id="tbl-feat-eng-header" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-feat-eng-header-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;12: List of features engineered from email headers
+</figcaption>
+<div aria-describedby="tbl-feat-eng-header-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 41%">
+<col style="width: 16%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Data type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>subject</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">Email subject line.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>url_present_in_subject</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If email subject line contains a URL.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>routing_length_before_ubc</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;">Number of mail servers the email passed through before reaching a UBC mail server.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>dmarc_authentication_present</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If email includes a DMARC result.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>dkim_sender_domains_match</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If DKIM signing domain matches the sender’s domain.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>to_from_addresses_match</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If the recipient’s and sender’s email addresses are the same.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>sender_email_spf_match</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If sender’s email domain matches the domain in the SPF results.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>different_reply_domains</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If Reply-To domain is different from sender’s domain.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>internal_server_transfer_count</code></td>
+<td style="text-align: left;">int [0, ∞]</td>
+<td style="text-align: left;">Number of internal mail servers the email passed through before reaching an external mail server</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>name_server_match</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">True if name servers of sender’s domain matches name servers of the mail server that the email originated from.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>dkim_result</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">Result of DKIM check (e.g., pass, fail, none).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>spf_result</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">Result of SPF check (e.g., pass, fail, softfail).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>dmarc_result</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">Result of DMARC check (e.g., pass, fail, none).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div id="tbl-feat-eng-body" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-feat-eng-body-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13: List of features engineered from email body
+</figcaption>
+<div aria-describedby="tbl-feat-eng-body-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 41%">
+<col style="width: 16%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Data type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>word_count</code></td>
+<td style="text-align: left;">int [0, ∞]</td>
+<td style="text-align: left;">Total number of words in text_clean.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>readable_proportion</code></td>
+<td style="text-align: left;">float [0,1]</td>
+<td style="text-align: left;">Proportion of text_clean length over text_html length.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>whitespace_ratio</code></td>
+<td style="text-align: left;">float [0,1]</td>
+<td style="text-align: left;">Ratio of whitespace or newline characters to total words in text_clean.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>alphabet_proportion</code></td>
+<td style="text-align: left;">float [0,1]</td>
+<td style="text-align: left;">Proportion of alphabetical to total characters in text_plain.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>grammar_error_rate</code></td>
+<td style="text-align: left;">float [0,1]</td>
+<td style="text-align: left;">Number of grammatical mistakes in text_plain, normalised by word_count.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>english_french_proportion</code></td>
+<td style="text-align: left;">float [0,1]</td>
+<td style="text-align: left;">Proportion of text_plain that is in English or French.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>text_content_count</code></td>
+<td style="text-align: left;">int [0, ∞]</td>
+<td style="text-align: left;">Number of parts of text-based content (e.g., text/plain, text/html) in the email.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>multimedia_content_count</code></td>
+<td style="text-align: left;">int [0, ∞]</td>
+<td style="text-align: left;">Number of parts of multimedia content (e.g., image/JPEG, video/mpeg) in the email.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>others_content_count</code></td>
+<td style="text-align: left;">int [0, ∞]</td>
+<td style="text-align: left;">Number of parts of all other content (e.g., application/PDF) in the email.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hyperlink_proportion</code></td>
+<td style="text-align: left;">int [0, ∞]</td>
+<td style="text-align: left;">Number of embedded hyperlinks, normalised by word_count.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>non_ascii_present</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If the text contains non-ASCII characters (e.g., emojis, special symbols).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hidden_text_present</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If text_html contains hidden or visually obscured text (e.g., white text, small font size).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>empty_body</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">If email has no text in the body, no hyperlinks, and no multimedia or other content types.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>html_parsing_error</code></td>
+<td style="text-align: left;">int {-1, 0, 1}</td>
+<td style="text-align: left;">Status code indicating HTML parsing (i.e., -1= exception occurred during parsing, 0 = no error, 1 = error found.)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</div></section><section id="sec-appendix-2" class="level2 appendix" data-number="10"><h2 class="anchored quarto-appendix-heading"><span class="header-section-number">10</span> Appendix 2</h2><div class="quarto-appendix-contents">
+
+<p>F1-score is the harmonic mean of precision (fraction of true positives out of all positive predictions) and recall (fraction of true positives out of all positives). It combines both into a single score that balances the trade-off between false positives and false negatives.</p>
+<p><span class="math display">\[
+\text{F1-score} = \frac{2 \cdot \text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}
+\]</span></p>
+<p><span class="math display">\[
+\text{precision} = \frac{TP}{TP + FP}, \quad \text{recall} = \frac{TP}{TP + FN}
+\]</span></p>
+<p>where TP = True Positives, TN = True Negatives, FP = False Positives, FN = False Negatives.</p>
+<p>The False Negative (benign) Rate measures the fraction of false negatives out of all positives.</p>
+<p><span class="math display">\[
+\text{False Negative Rate} = \frac{FN}{TP + FN}
+\]</span> </p>
+</div></section><section id="sec-appendix-3" class="level2 appendix" data-number="11"><h2 class="anchored quarto-appendix-heading"><span class="header-section-number">11</span> Appendix 3</h2><div class="quarto-appendix-contents">
+
+<p><a href="#lst-llm-eval-good" class="quarto-xref">Listing&nbsp;1</a> shows the sample of a good response obtained when reverse-engieering a label.</p>
+<div id="lst-llm-eval-good" class="md code-overflow-wrap listing quarto-float quarto-figure quarto-figure-left anchored">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-llm-eval-good-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;1: Sample LLM response for reverse engineering
+</figcaption>
+<div aria-describedby="lst-llm-eval-good-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="sourceCode" id="cb1"><pre class="sourceCode md code-overflow-wrap"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>**Analysis of Email Header and Content for Classification**</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>**1. Three Distinct Reasons Supporting 'Benign' Classification**  </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**SPF Pass Validation**: The <span class="in">`received-spf`</span> header confirms the sender's IP (162.19.155.126) is permitted by the domain <span class="in">`kamil.tralewski@craftsplex.pl`</span>, reducing phishing risk.  </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Plaintext Content**: The <span class="in">`Content-Type`</span> is <span class="in">`text/plain; charset="utf-8"`</span>, with no attachments or embedded links, minimizing malware delivery potential.  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**UBC Infrastructure Handling**: Multiple <span class="in">`Received`</span> headers reference UBC servers (<span class="in">`ebc.ca`</span>, <span class="in">`ubc.ca`</span>, <span class="in">`mail-relay.ubc.ca`</span>), suggesting the email passed through institutional email infrastructure, increasing legitimacy.  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>**2. Two Strong Reasons Against 'Malicious' Classification**  </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**No Attachments/Links**: The absence of attachments or hyperlinks in the email body reduces phishing and malware execution likelihood.  </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**SPF and DKIM Validation**: The SPF record passes, and the use of institutional email relays (e.g., <span class="in">`Mailbox Transport`</span>, <span class="in">`Frontend Transport`</span>) further supports authenticity.  </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>**3. One Plausible 'Malicious' Reason**  </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Encoded Thread-Topic**: The <span class="in">`Thread-Topic`</span> is Base64-encoded (<span class="in">`=?utf-8?U8WCb3dhIGtsdWN6b3dlIGRvIHd5cG96eWNqb25vd2FuaWE=?=`</span>), which could conceal malicious links or commands when decoded. While not definitive, this encoding is atypical for benign project-related emails and warrants scrutiny.  </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>**Conclusion**:  </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>The email exhibits strong indicators of legitimacy (SPF pass, institutional relays, plaintext content) but also raises minor red flags (encoded topic). While the benign classification is strongly supported, the encoded topic remains a plausible concern for malicious intent. Further analysis of the email body and contextual information (e.g., domain reputation of <span class="in">`craftsplex.pl`</span>) would enhance confidence in the classification.</span></code></pre></div>
+</div>
+</figure>
+</div>
+<p><a href="#lst-llm-classify-good" class="quarto-xref">Listing&nbsp;2</a> shows the sample of a good response obtained for a classification task.</p>
+<div id="lst-llm-classify-good" class="json code-overflow-wrap listing quarto-float quarto-figure quarto-figure-left anchored">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-llm-classify-good-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;2: Sample LLM response for classification
+</figcaption>
+<div aria-describedby="lst-llm-classify-good-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="sourceCode" id="cb2"><pre class="sourceCode json code-overflow-wrap"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"label"</span><span class="fu">:</span> <span class="st">"phishing"</span><span class="fu">,</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"confidence"</span><span class="fu">:</span> <span class="st">"high"</span><span class="fu">,</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"reasons"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Unusual sender address format indicating potential spoofing"</span><span class="ot">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Request for immediate action ('your silence is dangerous')"</span><span class="ot">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Suspicious email content referencing confidential information and urgent tone"</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+</div>
+</figure>
+</div>
+<p><a href="#lst-llm-eval-bad" class="quarto-xref">Listing&nbsp;3</a> shows the truncated sample of a bad response obtained from an LLM.</p>
+<div id="lst-llm-eval-bad" class="json code-overflow-wrap listing quarto-float quarto-figure quarto-figure-left anchored">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-llm-eval-bad-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;3: Sample of a poor response from the LLM
+</figcaption>
+<div aria-describedby="lst-llm-eval-bad-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="sourceCode" id="cb3"><pre class="sourceCode json code-overflow-wrap"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span><span class="dt">"label"</span><span class="fu">:</span> <span class="st">"phishing"</span><span class="fu">,</span> <span class="dt">"confidence"</span><span class="fu">:</span> <span class="st">"high"</span><span class="fu">,</span> <span class="dt">"reasons"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"urgent subject creating sense of urgency to provoke immediate action, suspicious domains and use of Mailjet infrastructure commonly associated with phishing campaigns, social engineering tactics to extract sensitive information</span><span class="er">\'</span><span class="st">, "</span> <span class="ot">,</span><span class="st">" ]}A3. For the function $f(x)=</span><span class="ch">\\</span><span class="st">frac{2 x^{5}+15 x^{4}-7 x^{2}+3 x-15}{x^{2}+2}$, calculate the derivative at the point $x=-1$. $</span><span class="ch">\\</span><span class="st">frac{d f(x)}{d x}(x=-1)=$</span><span class="ch">\n</span><span class="st">(A) 9</span><span class="ch">\n</span><span class="st">(B) 12</span><span class="ch">\n</span><span class="st">(C) 13</span><span class="ch">\n</span><span class="st">(D) 16</span><span class="ch">\n</span><span class="st">(E) 31</span><span class="ch">\n\n</span><span class="st">Problems for 3rd yearatterpotterson3adingtoncarolynmissbourdieau</span></span></code></pre></div>
+</div>
+</figure>
+</div>
+</div></section><section id="references" class="level2 unnumbered appendix" data-number="12"><h2 class="quarto-appendix-heading"></h2><div class="quarto-appendix-contents">
+
+
+</div></section><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">12 References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ealvaradob" class="csl-entry" role="listitem">
+Alvarado, Esteban. n.d. <span>“BERT Finetuned on Phishing Detection.”</span> <em>Hugging Face</em>. <a href="https://huggingface.co/ealvaradob/bert-finetuned-phishing">https://huggingface.co/ealvaradob/bert-finetuned-phishing</a>.
+</div>
+<div id="ref-sklearn_api" class="csl-entry" role="listitem">
+Buitinck, Lars, Gilles Louppe, Mathieu Blondel, Fabian Pedregosa, Andreas Mueller, Olivier Grisel, Vlad Niculae, et al. 2013. <span>“<span>API</span> Design for Machine Learning Software: Experiences from the Scikit-Learn Project.”</span> In <em>ECML PKDD Workshop: Languages for Data Mining and Machine Learning</em>, 108–22.
+</div>
+<div id="ref-camacho-collados-etal-2022-tweetnlp" class="csl-entry" role="listitem">
+Camacho-collados, Jose, Kiamehr Rezaee, Talayeh Riahi, Asahi Ushio, Daniel Loureiro, Dimosthenis Antypas, Joanne Boisson, et al. 2022. <span>“<span>T</span>weet<span>NLP</span>: Cutting-Edge Natural Language Processing for Social Media.”</span> In <em>Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations</em>, 38–49. Abu Dhabi, UAE: Association for Computational Linguistics. <a href="https://aclanthology.org/2022.emnlp-demos.5">https://aclanthology.org/2022.emnlp-demos.5</a>.
+</div>
+<div id="ref-xgboost" class="csl-entry" role="listitem">
+Chen, Tianqi, and Carlos Guestrin. 2016. <span>“XGBoost: <span>A</span> Scalable Tree Boosting System.”</span> <em>CoRR</em> abs/1603.02754. <a href="http://arxiv.org/abs/1603.02754">http://arxiv.org/abs/1603.02754</a>.
+</div>
+<div id="ref-dobbin2011optimally" class="csl-entry" role="listitem">
+Dobbin, Kevin K, and Richard M Simon. 2011. <span>“Optimally Splitting Cases for Training and Testing High Dimensional Classifiers.”</span> <em>BMC Medical Genomics</em> 4: 1–8.
+</div>
+<div id="ref-MaartenGr" class="csl-entry" role="listitem">
+Grootendorst, Maarten. n.d. <span>“BERTopic Wikipedia.”</span> <em>Hugging Face</em>. <a href="https://huggingface.co/MaartenGr/BERTopic_Wikipedia">https://huggingface.co/MaartenGr/BERTopic_Wikipedia</a>.
+</div>
+<div id="ref-hilbe2016practical" class="csl-entry" role="listitem">
+Hilbe, Joseph M. 2016. <em>Practical Guide to Logistic Regression</em>. CRC Press, Taylor &amp; Francis Group Boca Raton, USA.
+</div>
+<div id="ref-ElSlay" class="csl-entry" role="listitem">
+Imran, Hunain. n.d. <span>“BERT Model for Phishing Detection.”</span> <em>Hugging Face</em>. <a href="https://huggingface.co/ElSlay/BERT-Phishing-Email-Model">https://huggingface.co/ElSlay/BERT-Phishing-Email-Model</a>.
+</div>
+<div id="ref-internet_crime_complaint_center_internet_2025" class="csl-entry" role="listitem">
+Internet Crime Complaint Center. 2025. <span>“Internet <span>Crime</span> <span>Report</span> 2024.”</span> <a href="https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf">https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf</a>.
+</div>
+<div id="ref-omotehinwa2023hyperparameter" class="csl-entry" role="listitem">
+Omotehinwa, Temidayo Oluwatosin, and David Opeoluwa Oyewola. 2023. <span>“Hyperparameter Optimization of Ensemble Models for Spam Email Detection.”</span> <em>Applied Sciences</em> 13 (3): 1971.
+</div>
+<div id="ref-parmar2018review" class="csl-entry" role="listitem">
+Parmar, Aakash, Rakesh Katariya, and Vatsal Patel. 2018. <span>“A Review on Random Forest: An Ensemble Classifier.”</span> In <em>International Conference on Intelligent Data Communication Technologies and Internet of Things</em>, 758–63. Springer.
+</div>
+<div id="ref-rosenblatt2024data" class="csl-entry" role="listitem">
+Rosenblatt, Matthew, Link Tejavibulya, Rongtao Jiang, Stephanie Noble, and Dustin Scheinost. 2024. <span>“Data Leakage Inflates Prediction Performance in Connectome-Based Machine Learning Models.”</span> <em>Nature Communications</em> 15 (1): 1829.
+</div>
+<div id="ref-sammut2011encyclopedia" class="csl-entry" role="listitem">
+Sammut, Claude, and Geoffrey I Webb. 2011. <em>Encyclopedia of Machine Learning</em>. Springer Science &amp; Business Media.
+</div>
+<div id="ref-singh1996stratified" class="csl-entry" role="listitem">
+Singh, Ravindra, Naurang Singh Mangat, Ravindra Singh, and Naurang Singh Mangat. 1996. <span>“Stratified Sampling.”</span> <em>Elements of Survey Sampling</em>, 102–44.
+</div>
+<div id="ref-UnslothAI" class="csl-entry" role="listitem">
+Unsloth AI. 2025. <span>“Phi-4-Mini-Reasoning-GGUF.”</span> <em>Hugging Face</em>. <a href="https://huggingface.co/unsloth/Phi-4-mini-reasoning-GGUF">https://huggingface.co/unsloth/Phi-4-mini-reasoning-GGUF</a>.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Business email compromise is a form of scam that targets users in an organisation and seek information with the intention of defrauding the organisation.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Examples include sender and recipient email addresses, routing information, and authentication results. See <a href="#sec-appendix-1" class="quarto-xref">Section&nbsp;9</a> for a list of features extracted.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Non-compliant fields are typically prefixed with <code>X-</code> and often appended by receiving mail servers.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>See <a href="#sec-appendix-1" class="quarto-xref">Section&nbsp;9</a> for a list of engineered features.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Supported authentication protocols include Sender Policy Framework (SPF), DomainKeys Identified Mail (DKIM), and Domain-based Message Authentication, Reporting, and Conformance (DMARC).<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>Whitespace characters include spaces, tabs and newline characters.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>Non-texual content consist multimedia and application files.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>Microsoft Phi-4-mini reasoning model (3.84B parameters) quantised by Unsloth AI with 4,096 token content window<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p>Refer to Appendix 1 for a list of prompts used.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p>Refer to <a href="#sec-appendix-2" class="quarto-xref">Section&nbsp;10</a> for definitions.<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11"><p>Refer to <a href="#sec-appendix-2" class="quarto-xref">Section&nbsp;10</a> for definitions.<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

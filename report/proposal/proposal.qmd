@@ -1,0 +1,206 @@
+---
+title: "Sniffing for Phishing &mdash; UBC Cybersecurity"
+subtitle: "Proposal for DSCI 591 Capstone Project"
+format:
+    html:
+        toc: true
+        number-sections: true
+        code-fold: true
+    pdf:
+        toc: true
+        number-sections: true
+author:
+    - name: Ci Xu
+    - name: Danish Karlin Isa
+    - name: Jia Quan (Joseph) Lim
+    - name: Lik Hang (Alex) Wong
+date: 2025-05-09
+date-format: long
+bibliography: references-proposal.bib
+---
+
+## Executive Summary
+
+Currently, the University of British Columbia (UBC) Cybersecurity (the Partner) manually reviews suspicious emails reported by users – a process made difficult by the high-volume of reported emails and time sensitivity in addressing these threats.
+
+This project aims to support the Partner in automating the existing review-to-recall workflow. Our solution will enhance threat detection speed, reduce manual workload, and strengthen UBC’s cybersecurity.
+
+The deliverables include a containerised web service consisting of a trained machine learning (ML) pipeline that classify reported emails, a dashboard for performance monitoring, and comprehensive documentation.
+
+\newpage
+
+## Introduction
+
+Phishing emails represent a significant cybersecurity threat designed to trick recipients into divulging sensitive information including credentials and personal details. According to @internet_crime_complaint_center_internet_2025, business email compromise[^1] ranks second in terms of financial damage.  At UBC, email users face regular exposure to such phishing attempts, creating substantial risks for both individual users and the university as a whole.
+
+[^1]: Business email compromise is a form of scam that targets users in an organisation and seek information with the intention of defrauding the organisation.
+
+Recipients of such emails can report them to the Partner for further investigation, who reviews and labels them as `CEO Fraud`, `Phishing`, `Spam` or `Legitimate`. `CEO Fraud` and `Phishing` emails are considered malicious and will be recalled from users’ mailboxes to prevent further exposure.
+
+### Current works
+
+#### Classical machine learning models
+
+Classical models demonstrated strong performance for phishing email classification [@melendez_comparative_2024]. These models excel with structured feature sets, learning the importance of different inputs and establishing decision functions for desired classifications [@bergholz_improved_nodate]. Moreover, classical models offer advantages in interpretability, computational efficiency, and ease of deployment [@melendez_comparative_2024].
+
+For textual analysis, vectorization techniques such as Bag of Words (BOW) and Term Frequency–Inverse Document Frequency (TF-IDF) are commonly used. These methods are compatible with classical models by converting texts into numerical representations [@melendez_comparative_2024].
+
+#### Deep learning models
+
+Multiple works leveraged transformer-based architectures like Bidirectional Encoder Representations from Transformers (BERT) to obtain rich, contextual representations of the subject and body using attention-based bidirectional learning [@otieno_detecting_2023; @otieno_application_2023]. Deep learning models like Convolutional Neural Networks (CNN), Long Short-Term Memory (LSTM) networks and transformer-based models have also shown strong performance in detecting phishing emails [@shazad_spam_nodate; @otieno_application_2023; @bagui_classifying_2019].
+
+#### Large language models
+
+There is existing work that leveraged large language models (LLMs) for email classification through prompt engineering. Chain-of-thought prompting was used where the complex task of email classification is decomposed into smaller, manageable problems [@koide_chatspamdetector_2024]. This approach has shown to improve the quality of the LLM’s output by encouraging the model to reason [@wei_chain-of-thought_nodate]. Additionally, this method managed to outperform classical and deep-learning methods.
+
+### Current state
+
+@fig-review-to-recall-process describes the current review-to-recall process.
+
+![Current review-to-recall process](../../img/proposal/current-review-to-recall-process.png){#fig-review-to-recall-process}
+
+Currently, the performance of the ML pipeline that the Partner uses is not sufficient to support automation of the review-to-recall process. @fig-current-ml-pipeline shows the current ML pipeline.
+
+![Current ML pipeline used by the Partner](../../img/proposal/current-ml-pipeline.png){#fig-current-ml-pipeline}
+
+### Objectives
+
+We aim to reduce the Partner’s response time to malicious email campaigns with a new ML pipeline that supports full automation of the review-to-recall process through:
+
+-   expanding feature extraction to better use of the email metadata and content, and
+-   leveraging classical, deep learning techniques, and LLMs to classify emails.
+
+### Deliverables
+
+The deliverables for this project are:
+
+1.  A ML pipeline that parses emails and generates a predicted class
+2.  A containerised web service hosting the pipeline and callable via a RESTful API
+3.  A dashboard for performance monitoring
+4.  Comprehensive documentation
+
+The minimum viable products for this project are deliverable nos. 1 and 4.
+
+\newpage
+
+## Data Science Techniques
+
+@fig-project-workflow outlines the workflow for this project.
+
+![Project workflow](../../img/proposal/project-workflow.png){#fig-project-workflow}
+
+### Dataset and data structure
+
+The Partner provided a collection of reported emails which come in various formats. However, we will only work with `eml` files. The file structure of the dataset is shown below.
+
+``` bash
+data
+└── label
+    └── ticket_id
+        ├── file-1
+        ├── ...
+        └── file-n
+```
+
+@fig-eml-file shows the file structure of an `eml` file.
+
+![Structure of an `eml` file](../../img/proposal/eml-file-structure.png){#fig-eml-file width="350px"}
+
+We will parse the emails using the `email` package and extract metadata from the header, such as the sender, subject, and body. Additionally, we will use tools like `BeautifulSoup` to extract text from rich-text email bodies in `html` format.
+
+### Modelling approaches
+
+We propose three different approaches to meet our objectives.
+
+#### Classical machine learning
+
+We first leverage a range of classical models, including Naïve Bayes, Logistic Regression (LR), and Support Vector Machine (SVM), for our classification task.
+
+For better performance, we aim to extract a comprehensive set of features from the emails, including metadata such as sender information and routing details. Additionally, we will analyze email payload such as text, presence of links, and various characteristics of embedded links. We will process text with BOW and TF-IDF and extract latent features using techniques such as Latent Dirichlet Allocation (LDA).
+
+@fig-pipeline-classical-deep shows the pipeline for this approach.
+
+![Pipeline for classical and deep learning approaches](../../img/proposal/pipeline-classical-deep.png){#fig-pipeline-classical-deep}
+
+#### Deep learning
+
+Our second approach leverages transformer-based architectures, specifically BERT, to extract features from text and generate meaningful contextual embeddings.
+These embeddings will serve as input to deep learning models such as CNN and LSTM, which are well-suited for the classification task due to their ability to learn complex patterns and identify anomalies within the data. Additionally, we will also experiment with transformer-based models.
+
+The pipeline for this approach similar to the classical approach shown in @fig-pipeline-classical-deep.
+
+#### Large language models
+
+We intend to explore the use of LLMs for classifying emails using chain-of-thought prompting. This involves generating a structured query that encourages the LLM to justify its classification. Unlike other approaches, LLMs do not require extensive feature extraction and may be more sensitive to anomalies in the emails.
+
+@fig-pipeline-llm shows the pipeline for this approach.
+
+![Pipeline for the LLM approach](../../img/proposal/pipeline-llm.png){#fig-pipeline-llm}
+
+Due to data residency constraints, we intend to work with open-source LLMs that can be downloaded and trained locally on the provided virtual machine (VM).
+
+### Evaluation of proposed pipelines
+
+The current ML pipeline shall serve as a baseline for evaluation. The evaluation metrics are F1-score and False Positive Rate (FPR)[^2], as specified by the Partner.
+
+[^2]: Refer to Appendix for definition.
+
+Specifically, the proposed pipeline shall achieve F1-score $\ge 0.85$ and FPR $\le 0.001$ to enable the automated recall of suspected malicious emails. A high F1-score indicates the model correctly identifies most phishing emails while minimizing false positives, while maintaining a low FPR is crucial to avoid recalling legitimate emails by mistake, preventing important messages from being missed.
+
+## Conclusion
+
+In this project, we aim to tackle the threat of malicious emails at UBC by developing a high-performing ML pipeline capable of classifying reported emails as malicious or legitimate.
+
+For the Partner, this project supports efforts to automate the review-to-recall process for reported emails. Currently, analysts manually review reported emails and decide whether to recall similar emails from other mailboxes. This process is made worse with the high volume of incoming tickets. As such, a pipeline with excellent performance can review and automatically recall such emails. This would shorten the response time to malicious email campaigns and free up time for analysts to attend to other tasks.
+
+UBC Email users will also benefit as they are the primary targets of malicious email campaigns. As recipients of such emails, they are at risk of compromising sensitive information or suffering financial loss. A high-performing model would enable the Partner to respond to these threats quickly, reducing the number of UBC users exposed to such campaigns.
+
+\newpage
+
+## Timeline
+
+@tbl-timeline describes the proposed timeline for this project.
+
+| **Milestone** | **Due** | **What we'll work on** |
+|:------------:|:------------:|:-------------------------------------------|
+| 1 | May 9 | Final proposal |
+| 2 | May 16 | **Classical approach:** Feature extraction and engineering, training and tuning, evaluation |
+| 3 | May 23 | **Deep learning approach:** Feature extraction and engineering, training and tuning, evaluation |
+| 4 | May 30 | **LLM approach:** Feature extraction and prompt engineering, training and tuning, evaluation |
+| 5 | June 6 | Code refactoring and training on full dataset, packaging our pipeline in a container accessible via an API, development of dashboard for performance monitoring |
+| 6 | June 12 | Final presentation |
+| 7 | June 18 | Draft final report |
+| 8 | June 25 | Final report, packaged data product |
+
+:   Proposed timeline with milestones {#tbl-timeline}
+
+\newpage
+
+## Appendix {.appendix}
+
+**F1-score** is the harmonic mean of precision (fraction of true positives out of all positive predictions) and recall (fraction of true positives out of all positives).
+It combines both into a single score that balances the trade-off between false positives and false negatives.
+
+$$
+\text{F1-score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}},
+$$
+
+where,
+
+$$
+\text{Precision} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Positives}}
+$$
+
+$$
+\text{Recall} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}
+$$
+
+**False positive rate** measures the fraction of false positives out of all negative examples.
+
+$$
+\text{False Positive Rate (FPR)} = \frac{\text{False Positives}}{\text{False Positives} + \text{True Negatives}}
+$$
+
+\newpage
+
+## References
