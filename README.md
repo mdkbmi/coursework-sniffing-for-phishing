@@ -1,5 +1,9 @@
 # Sniffing for Phishing
 
+> IMPORTANT: This repository is a shallow copy of the actual repository used in the final submission of this Capstone Project.
+> Due to data residency restrictions, the data used to train the model and the trained model is not available in this repository.
+> The detailed commit history is also not available to prevent the disclosure of the training data.
+
 Authors: Ci Xu, Danish Karlin Isa, Jia Quan (Joseph) Lim, Lik Hang (Alex) Wong
 
 This project is part of the coursework for DSCI 591 Capstone Project, a Master of Data Science course at the University of British Columbia.
